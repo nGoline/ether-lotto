@@ -16,6 +16,20 @@
 	{
 		"constant": true,
 		"inputs": [],
+		"name": "availableBets",
+		"outputs": [
+			{
+				"name": "r",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
 		"name": "maxNumber",
 		"outputs": [
 			{
@@ -124,12 +138,7 @@
 			}
 		],
 		"name": "withdraw",
-		"outputs": [
-			{
-				"name": "r",
-				"type": "uint8"
-			}
-		],
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -197,6 +206,23 @@
 			}
 		],
 		"name": "BetReceived",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_result",
+				"type": "int8"
+			},
+			{
+				"indexed": true,
+				"name": "_winners",
+				"type": "uint256"
+			}
+		],
+		"name": "WithdrawMade",
 		"type": "event"
 	}
 ]
