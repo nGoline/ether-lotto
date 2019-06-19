@@ -31,7 +31,7 @@ var expiration,
 
 $('#span-contract-address').text(contractAddress.substring(2));
 
-var etherLotoContract = web3.eth.contract(EtherLoto.abi);
+var etherLotoContract = web3.eth.contract(EtherLotto.abi);
 var contractInstance = etherLotoContract.at(contractAddress);
 
 console.log('Getting Expiration.');

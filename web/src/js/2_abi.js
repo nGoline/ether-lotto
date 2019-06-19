@@ -1,4 +1,4 @@
-[
+var EtherLotto={"abi":[
 	{
 		"constant": true,
 		"inputs": [],
@@ -225,4 +225,4 @@
 		"name": "WithdrawMade",
 		"type": "event"
 	}
-]
+]};
