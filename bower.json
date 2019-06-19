@@ -1,0 +1,28 @@
+{
+  "name": "etherloto",
+  "description": "Ethereum based lotery",
+  "main": "web/build/app/min/js",
+  "authors": [
+    "Níckolas Goline"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "a"
+  ],
+  "homepage": "https://github.com/nGoline/ether-loto",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "web3": "^0.20.6"
+  },
+  "devDependencies": {
+    "bootstrap": "^4.1.3"
+  }
+}
