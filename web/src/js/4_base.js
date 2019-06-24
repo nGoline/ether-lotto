@@ -33,7 +33,7 @@ var expiration,
   progressBar = $('.progress-bar'),
   currentBlockNumber = 0,
   totalBets = 0,
-  availableBets = 10;
+  betsLeft = 10;
 
 $('#span-contract-address').text(contractAddress.substring(2));
 
@@ -52,6 +52,8 @@ console.log('Getting Prize Available.');
 contractInstance.prizeAvailable(prizeAvailableCB);
 console.log('Getting Max Number.');
 contractInstance.maxNumber(maxNumberCB);
+console.log('Getting Max Number.');
+contractInstance.availableBets(availableBetsCB);
 
 console.log('Getting current block number.');
 web3.eth.getBlockNumber(blockNumberCB);
@@ -152,11 +154,20 @@ function blockNumberCB(error, blockNumber) {
       if (error1) {
         console.error(error1);
       } else {
-        for (tx in bets){
+        for (tx in bets) {
           addBetToList(bets[tx].transactionHash);
-        }          
+        }
       }
     });
+  }
+}
+
+function availableBetsCB(error, availableBets) {
+  if (error) {
+    console.error(error);
+  } else {
+    betsLeft = availableBets;
+    setAvailableBets(availableBets);
   }
 }
 
@@ -196,20 +207,20 @@ var betReceivedEvent = contractInstance.BetReceived((error, result) => {
  */
 function addBetToList(txHash) {
   totalBets++;
-  web3.eth.getTransaction(txHash , (error, transaction) => {
+  web3.eth.getTransaction(txHash, (error, transaction) => {
     if (error)
       console.error(error);
-    
+
     var bet = bytes32ToIntArray(transaction.input.substring(10, 16));
-    
-    if (transaction.from == web3.eth.accounts[0]){
-      $('.my-bets').append(`<li>${bet}</li>`);
-      
-      availableBets--;
-      setAvailableBets();
+
+    if (transaction.from == web3.eth.accounts[0]) {
+      $('.my-bets').append(`<li><b class="ball small mine">${bet[0]}</b><b class="ball small mine">${bet[1]}</b><b class="ball small mine">${bet[2]}</b></li>`);
+      $('.all-bets').append(`<li><b class="ball small mine">${bet[0]}</b><b class="ball small mine">${bet[1]}</b><b class="ball small mine">${bet[2]}</b></li>`);
+
+      contractInstance.availableBets(availableBetsCB);
+    } else {
+      $('.all-bets').append(`<li><b class="ball small">${bet[0]}</b><b class="ball small">${bet[1]}</b><b class="ball small">${bet[2]}</b></li>`);
     }
-    
-    $('.all-bets').append(`<li>${bet}</li>`);
 
     $('.total-bets').html(totalBets);
   });
@@ -255,7 +266,7 @@ function convertResult(result) {
   bet.text('');
   var resultArray = bytes32ToIntArray(result);
   for (i in resultArray) {
-      bet.append(`<b class="ball">${resultArray[i]}</b>`);
+    bet.append(`<b class="ball">${resultArray[i]}</b>`);
   }
 
   incrementProgress();
@@ -294,17 +305,20 @@ function setSpanPot(prizeAvailable) {
 }
 
 function setButtonState() {
-  if (expiration > new Date() && selection.length == betSize) {
+  if (expiration > new Date() && selection.length == betSize && betsLeft > 0) {
     $('#button-bet').prop('disabled', false);
   } else {
     $('#button-bet').prop('disabled', true);
   }
 }
 
-function setAvailableBets() {
+function setAvailableBets(availableBets) {
   let availableText = 'No bets left';
-  if (availableBets){
+  if (availableBets > 0) {
     availableText = availableBets + ' bets left';
+    $('.ball', '.selection').removeClass('red');
+  } else {
+    $('.ball', '.selection').addClass('red');
   }
 
   $("h5 span", '#bet-panel').html(availableText);

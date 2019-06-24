@@ -56,6 +56,20 @@ b.ball {
   width: 2.5rem;
 }
 
+  b.ball.small {
+    font-size: 0.7rem;
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+
+    b.ball.small.mine {
+      background-color: #a3c1a1;
+    }
+
+  b.ball.red {
+    background-color: #d26161;
+  }
+
 .list-group-item span,
 .card-body span {
   margin-left: 1rem;
@@ -82,19 +96,28 @@ span.total-bets {
   overflow: auto;
 }
 
-ul.all-bets li {
-  display: none;
+ul {
+  list-style: none;
 }
 
-ul.all-bets li:nth-last-of-type(-n+5),
-ul.my-bets li:last-child {
-  display: list-item;
-  -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
-     -moz-animation: fadein 1s; /* Firefox < 16 */
-      -ms-animation: fadein 1s; /* Internet Explorer */
-       -o-animation: fadein 1s; /* Opera < 12.1 */
-          animation: fadein 1s;
+ul.all-bets,
+ul.my-bets {
+  border-spacing: 0.15rem;
 }
+
+  ul.all-bets li {
+    display: none;
+  }
+
+    ul.all-bets li:nth-last-of-type(-n+5),
+    ul.my-bets li:last-child {
+      display: list-item;
+      -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
+        -moz-animation: fadein 1s; /* Firefox < 16 */
+          -ms-animation: fadein 1s; /* Internet Explorer */
+          -o-animation: fadein 1s; /* Opera < 12.1 */
+              animation: fadein 1s;
+    }
 
 @keyframes fadein {
   from { opacity: 0; }
