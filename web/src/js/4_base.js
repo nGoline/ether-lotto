@@ -8,6 +8,9 @@ if (window.ethereum) {
   window.web3 = new Web3(ethereum);
   injectedWeb3 = 1;
   console.log("injected modern web3");
+  
+  // Request account access
+  ethereum.enable();
 }
 // Legacy dapp browsers...
 else if (window.web3) {
@@ -178,9 +181,9 @@ function convertResult(result) {
     var start = i * 2;
     var int = result.substring(start, start + 2);
     if (i > 1 && int == 0) {
-      break
+      break;
     } else if (int == '0x') {
-      continue
+      continue;
     } else {
       bet.append(`<b class="ball">${parseInt(int, 16)}</b>`);
     }
@@ -205,7 +208,7 @@ function populateBoard(maxNumber) {
       number++;
     }
   }
-};
+}
 
 function setBalls() {
   var balls = $('b.ball', '.selection');
@@ -219,7 +222,7 @@ function setSpanPot(prizeAvailable) {
   $('#span-pot').text('Ξ ' + prizeAvailable);
 
   incrementProgress();
-};
+}
 
 function setButtonState() {
   if (expiration > new Date() && selection.length == betSize) {
@@ -227,11 +230,11 @@ function setButtonState() {
   } else {
     $('#button-bet').prop('disabled', true);
   }
-};
+}
 
 function sortNumber(a, b) {
   return a - b;
-};
+}
 
 function enableWithdraw() {
   $('.card', '#withdraw-panel').attr('title', '');
@@ -239,7 +242,7 @@ function enableWithdraw() {
   $('#button-withdraw', '#withdraw-panel').prop('disabled', '');
 
   incrementProgress();
-};
+}
 
 function toggleLoadingButton(buttonName) {
   var button = $(`#button-${buttonName}`);
@@ -323,17 +326,13 @@ function setEvents() {
     }
 
     try {
-      // Request account access if needed
-      if (injectedWeb3 > 0)
-        await ethereum.enable();
-      // Acccounts now exposed
       contractInstance.bet(bet, soliditySha3(secret), {
         from: web3.eth.accounts[0],
         value: betValue,
         gas: 150000
-      }, (error, result) => {
+      }, (error, _) => {
         if (error) {
-          console.error
+          console.error(error);
         } else {
           resetView();
         }
@@ -358,10 +357,6 @@ function setEvents() {
     secret = solidityPackString(secret);
 
     try {
-      // Request account access if needed
-      if (injectedWeb3 > 0)
-        await ethereum.enable();
-      // Acccounts now exposed
       contractInstance.withdraw(secret, {
         from: web3.eth.accounts[0],
         gas: 210000
@@ -381,4 +376,4 @@ function setEvents() {
   })
 
   incrementProgress();
-};
+}
