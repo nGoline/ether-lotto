@@ -142,7 +142,7 @@ function blockNumberCB(error, blockNumber) {
     var options = {
       fromBlock: 4589523,
       toBlock: blockNumber,
-      address: "0x7a14f16af36cca6e498dcfd140913983514d13f0",
+      address: contractAddress,
       topics: ["0xc64277dc59cfd077c212adfb2981c07045ce38d24e6b2e0e588ab30577f0938d"]
     };
 
