@@ -8,6 +8,9 @@ if (window.ethereum) {
   window.web3 = new Web3(ethereum);
   injectedWeb3 = 1;
   console.log("injected modern web3");
+
+  // Request account access
+  ethereum.enable();
 }
 // Legacy dapp browsers...
 else if (window.web3) {
@@ -27,11 +30,14 @@ var expiration,
   betValue = 2e16,
   loading = 0,
   loadingTotal = 5,
-  progressBar = $('.progress-bar');
+  progressBar = $('.progress-bar'),
+  currentBlockNumber = 0,
+  totalBets = 0,
+  availableBets = 10;
 
 $('#span-contract-address').text(contractAddress.substring(2));
 
-var etherLotoContract = web3.eth.contract(EtherLoto.abi);
+var etherLotoContract = web3.eth.contract(EtherLotto.abi);
 var contractInstance = etherLotoContract.at(contractAddress);
 
 console.log('Getting Expiration.');
@@ -46,6 +52,9 @@ console.log('Getting Prize Available.');
 contractInstance.prizeAvailable(prizeAvailableCB);
 console.log('Getting Max Number.');
 contractInstance.maxNumber(maxNumberCB);
+
+console.log('Getting current block number.');
+web3.eth.getBlockNumber(blockNumberCB);
 
 /***********
  * Callbacks
@@ -124,19 +133,88 @@ function maxNumberCB(error, maxNumber) {
   }
 }
 
+function blockNumberCB(error, blockNumber) {
+  if (error) {
+    console.error(error);
+  } else {
+    currentBlockNumber = blockNumber;
+
+    var options = {
+      fromBlock: 4589523,
+      toBlock: blockNumber,
+      address: contractAddress,
+      topics: ["0xc64277dc59cfd077c212adfb2981c07045ce38d24e6b2e0e588ab30577f0938d"]
+    };
+
+    var filter = web3.eth.filter(options);
+
+    filter.get(function (error1, bets) {
+      if (error1) {
+        console.error(error1);
+      } else {
+        for (tx in bets){
+          addBetToList(bets[tx].transactionHash);
+        }          
+      }
+    });
+  }
+}
+
+function bytes32ToIntArray(hash) {
+  result = [];
+  for (var i = 0; i <= betSize; i++) {
+    var start = i * 2;
+    var int = hash.substring(start, start + 2);
+    if (i > 1 && int == 0) {
+      break;
+    } else if (int == '0x') {
+      continue;
+    } else {
+      result.push(parseInt(int, 16));
+    }
+  }
+
+  return result;
+}
+
 /********
  * Events
  */
 var betReceivedEvent = contractInstance.BetReceived((error, result) => {
-  if (!error) {
+  if (error) {
+    console.error(error);
+  } else {
     setSpanPot(result.args._prizeAvailable.toNumber());
     convertResult(result.args._result);
+
+    addBetToList(result.transactionHash);
   }
 });
 
 /******************
  * DOM Manipulation
  */
+function addBetToList(txHash) {
+  totalBets++;
+  web3.eth.getTransaction(txHash , (error, transaction) => {
+    if (error)
+      console.error(error);
+    
+    var bet = bytes32ToIntArray(transaction.input.substring(10, 16));
+    
+    if (transaction.from == web3.eth.accounts[0]){
+      $('.my-bets').append(`<li>${bet}</li>`);
+      
+      availableBets--;
+      setAvailableBets();
+    }
+    
+    $('.all-bets').append(`<li>${bet}</li>`);
+
+    $('.total-bets').html(totalBets);
+  });
+}
+
 function incrementProgress() {
   loading++;
 
@@ -149,6 +227,7 @@ function incrementProgress() {
   if (loading === loadingTotal) {
     setTimeout(_ => {
       $('main').show();
+      $('#real-time-panel').show();
       $('header').hide();
     }, 500);
   }
@@ -174,16 +253,9 @@ function resetView() {
 function convertResult(result) {
   var bet = $('.bet');
   bet.text('');
-  for (var i = 0; i <= betSize; i++) {
-    var start = i * 2;
-    var int = result.substring(start, start + 2);
-    if (i > 1 && int == 0) {
-      break
-    } else if (int == '0x') {
-      continue
-    } else {
-      bet.append(`<b class="ball">${parseInt(int, 16)}</b>`);
-    }
+  var resultArray = bytes32ToIntArray(result);
+  for (i in resultArray) {
+      bet.append(`<b class="ball">${resultArray[i]}</b>`);
   }
 
   incrementProgress();
@@ -205,21 +277,21 @@ function populateBoard(maxNumber) {
       number++;
     }
   }
-};
+}
 
 function setBalls() {
   var balls = $('b.ball', '.selection');
   for (var i = 0; i < balls.length; i++) {
     $(balls[i]).text(selection[i] === undefined ? '?' : selection[i]);
   }
-};
+}
 
 function setSpanPot(prizeAvailable) {
   prizeAvailable = parseInt(prizeAvailable) / 1e18 || 0;
   $('#span-pot').text('Ξ ' + prizeAvailable);
 
   incrementProgress();
-};
+}
 
 function setButtonState() {
   if (expiration > new Date() && selection.length == betSize) {
@@ -227,11 +299,20 @@ function setButtonState() {
   } else {
     $('#button-bet').prop('disabled', true);
   }
-};
+}
+
+function setAvailableBets() {
+  let availableText = 'No bets left';
+  if (availableBets){
+    availableText = availableBets + ' bets left';
+  }
+
+  $("h5 span", '#bet-panel').html(availableText);
+}
 
 function sortNumber(a, b) {
   return a - b;
-};
+}
 
 function enableWithdraw() {
   $('.card', '#withdraw-panel').attr('title', '');
@@ -239,7 +320,7 @@ function enableWithdraw() {
   $('#button-withdraw', '#withdraw-panel').prop('disabled', '');
 
   incrementProgress();
-};
+}
 
 function toggleLoadingButton(buttonName) {
   var button = $(`#button-${buttonName}`);
@@ -323,17 +404,13 @@ function setEvents() {
     }
 
     try {
-      // Request account access if needed
-      if (injectedWeb3 > 0)
-        await ethereum.enable();
-      // Acccounts now exposed
       contractInstance.bet(bet, soliditySha3(secret), {
         from: web3.eth.accounts[0],
         value: betValue,
         gas: 150000
-      }, (error, result) => {
+      }, (error, _) => {
         if (error) {
-          console.error
+          console.error(error);
         } else {
           resetView();
         }
@@ -358,10 +435,6 @@ function setEvents() {
     secret = solidityPackString(secret);
 
     try {
-      // Request account access if needed
-      if (injectedWeb3 > 0)
-        await ethereum.enable();
-      // Acccounts now exposed
       contractInstance.withdraw(secret, {
         from: web3.eth.accounts[0],
         gas: 210000
@@ -381,4 +454,4 @@ function setEvents() {
   })
 
   incrementProgress();
-};
+}

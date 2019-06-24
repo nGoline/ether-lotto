@@ -9,6 +9,7 @@
   "scripts": {
     "start": "gulp",
     "deploy": "gulp deploy",
+    "deploy-pages": "git subtree push --prefix web/build origin gh-pages",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "bower install"
   },
@@ -23,7 +24,7 @@
   },
   "homepage": "https://github.com/nGoline/ether-lotto#readme",
   "devDependencies": {
-    "browser-sync": "^2.24.7",
+    "browser-sync": "^2.26.7",
     "dotenv": "^6.0.0",
     "gulp": "^4.0.0",
     "gulp-clean-css": "^3.10.0",
@@ -35,11 +36,9 @@
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.1",
     "gulp-scss": "^1.4.0",
-    "gulp-solidity-abi": "0.0.1",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^3.0.1",
     "gulp-watch": "^5.0.1",
-    "truffle-hdwallet-provider": "0.0.6",
     "web3": "^0.20.7",
     "write": "^1.0.3"
   },
