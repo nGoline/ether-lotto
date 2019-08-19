@@ -16,20 +16,6 @@ var EtherLotto={"abi":[
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "availableBets",
-		"outputs": [
-			{
-				"name": "r",
-				"type": "int256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
 		"name": "maxNumber",
 		"outputs": [
 			{
@@ -138,7 +124,12 @@ var EtherLotto={"abi":[
 			}
 		],
 		"name": "withdraw",
-		"outputs": [],
+		"outputs": [
+			{
+				"name": "r",
+				"type": "uint8"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -186,7 +177,28 @@ var EtherLotto={"abi":[
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"name": "_betSize",
+				"type": "int256"
+			},
+			{
+				"name": "_maxNumber",
+				"type": "bytes1"
+			},
+			{
+				"name": "_betValue",
+				"type": "uint256"
+			},
+			{
+				"name": "_expiration",
+				"type": "uint256"
+			},
+			{
+				"name": "expirationBase",
+				"type": "bytes32"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "constructor"
@@ -206,23 +218,6 @@ var EtherLotto={"abi":[
 			}
 		],
 		"name": "BetReceived",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "_result",
-				"type": "int8"
-			},
-			{
-				"indexed": true,
-				"name": "_winners",
-				"type": "uint256"
-			}
-		],
-		"name": "WithdrawMade",
 		"type": "event"
 	}
 ]};
